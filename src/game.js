@@ -1,0 +1,2 @@
+import 'chessboard-element';
+

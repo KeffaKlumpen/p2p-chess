@@ -12,5 +12,8 @@
   },
   "peerDependencies": {
     "typescript": "^7"
+  },
+  "dependencies": {
+    "chessboard-element": "^1.2.0"
   }
 }
