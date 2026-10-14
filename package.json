@@ -1,0 +1,16 @@
+{
+  "name": "p2p-chess",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "watch": "bun run src/index.ts --watch",
+    "typecheck": "bun check"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  }
+}
