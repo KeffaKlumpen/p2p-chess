@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "watch": "bun run src/index.ts --watch",
+    "watch": "bun run app/index.ts --watch",
     "typecheck": "bun check"
   },
   "devDependencies": {
@@ -14,6 +14,6 @@
     "typescript": "^7"
   },
   "dependencies": {
-    "chessboard-element": "^1.2.0"
+    "peerjs": "^1.5.5"
   }
 }
