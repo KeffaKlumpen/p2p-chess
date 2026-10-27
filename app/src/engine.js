@@ -11,6 +11,9 @@ export function legalMoves(data, row, col) {
     }
 }
 
-function legalPawnMoves(data, row, col) {
-
+function legalKnightMoves(data, row, col) {
+    const moves = [];
+    let x = 0;
+    let y = 0;
+    moves.push([x,y]);
 }

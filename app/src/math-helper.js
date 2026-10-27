@@ -5,3 +5,7 @@ export function range(x, y) {
 export function randomFromArray(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
+
+export function randInt(max) {
+    return Math.floor(Math.random() * max)
+}
