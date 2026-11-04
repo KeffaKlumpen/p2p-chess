@@ -1,6 +1,7 @@
 
 import { Peer } from "peerjs";
 import { randInt } from "./math-helper.js";
+import { getBoardData } from "./engine.js";
 
 var peer = new Peer(randInt(10), {
     config: {
@@ -37,10 +38,13 @@ export function joinRoom(roomName) {
 
     outConn.on("open", () => {
         onConnectionOpened(outConn);
+
+        peerEvents.dispatchEvent(new CustomEvent("connEstablished"));
     });
 }
 export function sendData(data) {
     if (connection) {
+        console.log("sending: " + JSON.stringify(data));
         connection.send(data);
     } else {
         console.error("no connection!");
@@ -56,18 +60,42 @@ function onConnectionOpened(c) {
         handleData(data);
     });
 
-    connection.send(new GameEvent("join", { name: peer.id }));
+    sendData(new P2pEvent(peer.id))
 }
 
 function handleData(data) {
-    console.log("Recieved: " + data);
+    console.log("Recieved: " + JSON.stringify(data));
+
+    if (data.payload != null && data.payload.detail != null) {
+        peerEvents.dispatchEvent(new CustomEvent(data.type, data.payload));
+    } else {
+        console.log("Invalid payload recieved: " + JSON.stringify(data.payload));
+    }
 }
 
+export const peerEvents = new EventTarget();
 
-
-class GameEvent {
-    constructor(type, payload) {
-        this.type = type;
-        this.payload = payload;
+export class P2pEvent {
+    constructor(payload) {
+        this.type = "p2p";
+        this.payload = { detail: payload };
+    }
+}
+export class InitEvent {
+    constructor(payload) {
+        this.type = "init";
+        this.payload = { detail: payload };
+    }
+}
+export class StateEvent {
+    constructor(payload) {
+        this.type = "state";
+        this.payload = { detail: payload };
+    }
+}
+export class GameEvent {
+    constructor(payload) {
+        this.type = "game";
+        this.payload = { detail: payload };
     }
 }
