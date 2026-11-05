@@ -1,5 +1,5 @@
 
-import { Peer } from "peerjs";
+import { Peer } from "./peerjs/peerjs.min.js";
 
 var peer = new Peer({
     config: {

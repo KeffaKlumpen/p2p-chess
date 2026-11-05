@@ -1,4 +1,4 @@
-import { Position } from "./engine";
+import { Position } from "./engine.js";
 
 export class ChessboardUI {
     constructor(engine) {
@@ -58,7 +58,7 @@ export class ChessboardUI {
                 const piece = orientedData[i][j];
                 if (piece != "empty") {
                     const imgEl = document.createElement('img');
-                    imgEl.setAttribute('src', `./chesspieces/cburnett/${piece}.svg`);
+                    imgEl.setAttribute('src', `static/chesspieces/cburnett/${piece}.svg`);
                     imgEl.setAttribute('alt', piece);
                     imgEl.setAttribute('style', 'width: 40px; height: 40px;');
                     cell.appendChild(imgEl);

@@ -1,4 +1,4 @@
-import { range, randomFromArray } from "./math-helper";
+import { range, randomFromArray } from "./math-helper.js";
 
 const ROWS = 8
 const COLS = 8

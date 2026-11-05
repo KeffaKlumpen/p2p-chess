@@ -1,7 +1,7 @@
 import "./chessboard.js";
 import { ChessboardUI } from "./chessboard.js";
 import { Engine, Move } from "./engine.js";
-import './hcg-toast/hcg-toast.css';
+// import './hcg-toast/hcg-toast.css';
 import toast from './hcg-toast/hcg-toast.js';
 import "./math-helper.js";
 import { GameEvent, InitEvent, joinRoom, peerEvents, sendData } from "./p2p.js";

@@ -416,3 +416,6 @@
         return toastFn;
     }
 ));
+
+
+export default window.toast;
