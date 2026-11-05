@@ -45,12 +45,79 @@ export class Engine {
     legalMoves(pos) {
         console.log("Checking legal moves", pos);
         const piece = this.board[pos.x][pos.y];
+        let legalMoves = [];
 
-        return [
-            new Position(0, 0),
-            new Position(1, 0),
-            new Position(2, 0),
-        ]
+        if (piece == "empty") {
+            return legalMoves;
+        }
+
+        let col = getColor(piece)
+        let type = getType(piece)
+        console.log(col, type);
+        switch (type) {
+            case "K": {
+                for (let i = -1; i < 2; i++) {
+                    for (let j = -1; j < 2; j++) {
+                        if (i == 0 && j == 0) { continue; }
+                        let x = pos.x + i;
+                        let y = pos.y + j;
+                        let other = this.getPiece(x, y);
+                        if (other == null) {
+                            continue;
+                        }
+                        if (other == "empty" || col != getColor(other)) {
+                            legalMoves.push(new Position(x, y));
+                        }
+                    }
+                }
+                break;
+            }
+            case "P": {
+                console.log("checking pawn moves")
+                let moveDist = (col == "w" && pos.x == 6) || (col == "b" && pos.x == 1) ? 2 : 1;
+                let xDirection = col == "w" ? -1 : 1;
+                let pawnMoves = [
+                    { type: "glide", attack: false, dir: [xDirection, 0], length: moveDist },
+                    { type: "jump", attack: true, positions: [[xDirection, 1], [xDirection, -1]] },
+                ];
+
+                pawnMoves.forEach(move => {
+                    console.log("pawnmove", move);
+                    if (move.type == "jump") {
+                        move.positions
+                            .map(relativePos => [relativePos[0] + pos.x, relativePos[1] + pos.y])
+                            .forEach(tarPos => {
+                                var tarPiece = this.getPiece(tarPos[0], [tarPos[1]]);
+                                console.log("jump", tarPos, tarPiece);
+                                if (tarPiece == null) {
+                                    return;
+                                }
+                                if (tarPiece == "empty" || (move.attack && getColor(tarPiece) != col)) {
+                                    legalMoves.push(new Position(tarPos[0], tarPos[1]));
+                                }
+                            })
+                    } else if (move.type == "glide") {
+                        let tarPos = [pos.x + move.dir[0], pos.y + move.dir[1]];
+                        let tarPiece = this.getPiece(tarPos[0], tarPos[1]);
+                        let steps = 1;
+                        while (tarPiece != null && (move.length == undefined || steps <= move.length)) {
+                            if (tarPiece == "empty" || (move.attack && getColor(tarPiece) != col)) {
+                                legalMoves.push(new Position(tarPos[0], tarPos[1]));
+                            }
+                            tarPos = [tarPos[0] + move.dir[0], tarPos[1] + move.dir[1]];
+                            tarPiece = this.getPiece(tarPos[0], tarPos[1]);
+                            steps++;
+                        }
+                    }
+                });
+                break;
+            }
+            default: {
+                legalMoves.push(new Position(3, 3));
+            }
+        }
+
+        return legalMoves;
     }
 
     initializeGame(otherBoard) {
@@ -82,6 +149,13 @@ export class Engine {
         console.log(JSON.stringify(this.board));
         this.dispatchEvent(new BoardStateEvent(this.board));
     }
+
+    getPiece(x, y) {
+        if (x < 0 || x >= ROWS || y < 0 || y >= COLS)
+            return null;
+
+        return this.board[x][y];
+    }
 }
 
 class BoardStateEvent {
@@ -102,7 +176,7 @@ function getColor(piece) {
     return piece.slice(0, 1);
 }
 function getType(piece) {
-    return piece.slice(0);
+    return piece.slice(1);
 }
 
 

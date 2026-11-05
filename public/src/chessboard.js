@@ -107,7 +107,8 @@ function coordToDataPos(coord) {
     let x = 8 - rank;
     // col to Y
     let y = cols.findIndex(c => c == col)
-    return new Position(7 - x, 7 - y);
+    // return new Position(7 - x, 7 - y);
+    return new Position(x, y);
 }
 function uiposToCoord(x, y, renderColor) {
     if (renderColor == "white") {
