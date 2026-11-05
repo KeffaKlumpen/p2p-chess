@@ -1,53 +1,101 @@
-import { range, randomFromArray, randInt } from "./math-helper";
-import { peerEvents } from "./p2p";
+import { range, randomFromArray } from "./math-helper";
 
-export const ROWS = 8
-export const COLS = 8
+const ROWS = 8
+const COLS = 8
 
-let data = null;
-let currentPlayer = "white";
-let myColor = "white";
+export const chessEvents = new EventTarget();
 
-export function getBoardData() {
-    return data;
-}
-export function getCurrentPlayer() {
-    return currentPlayer;
-}
-export function initializeGame(otherBoard) {
-    if (otherBoard) {
-        data = otherBoard;
-        currentPlayer = "white";
-        myColor = "black";
-    } else {
-        data = _960();
-        currentPlayer = "white";
-        myColor = "white";
-    }
-
-    boardEvents.dispatchEvent(new CustomEvent("stateupdate"));
-}
-
-export const boardEvents = new EventTarget();
-
-export function legalMoves(row, col) {
-    const piece = data[row][col]
-    const color = getColor.piece();
-    const pieceType = getType(piece);
-
-    console.log("checking legal moves for " + piece + " (color " + color + " pieceType " + pieceType + ") at [" + row + "," + col + "]");
-
-    switch (piece) {
-        case "bK":
-            return legalKnightMoves(row, col, "b");
+export class Move {
+    constructor(from, to, promotion) {
+        this.from = from
+        this.to = to
+        this.promotion = promotion
     }
 }
 
-function legalKnightMoves(row, col) {
-    const moves = [];
-    let x = 0;
-    let y = 0;
-    moves.push([x, y]);
+export class Engine {
+    constructor() {
+        this.board = _960();
+        this.selected = null;
+        this.chessEvents = new EventTarget();
+        this.currentPlayer = "white";
+        this.myColor = "white";
+    }
+
+    dispatchEvent(event) {
+        console.log("local dispatch: " + JSON.stringify(event));
+        this.chessEvents.dispatchEvent(new CustomEvent(event.type, { detail: event.payload }));
+    }
+
+    selectSquare(pos) {
+        if (this.currentPlayer != this.myColor) {
+            return { success: false, reason: "Not your turn" };
+        }
+        let piece = this.board[pos.x][pos.y];
+        if (piece == "empty") {
+            return { success: false, reason: "No piece on square" }
+        } else if (getColor(piece) != this.myColor) {
+            return { success: false, reason: "Not your piece" }
+        }
+
+        this.selected = pos;
+        return { success: true };
+    }
+
+    legalMoves(pos) {
+        console.log("Checking legal moves", pos);
+        const piece = this.board[pos.x][pos.y];
+
+        return [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+        ]
+    }
+
+    initializeGame(otherBoard) {
+        if (otherBoard) {
+            this.board = otherBoard;
+            this.currentPlayer = "white";
+            this.myColor = "black";
+        } else {
+            this.board = _960();
+            this.currentPlayer = "white";
+            this.myColor = "white";
+        }
+
+        this.dispatchEvent(new BoardStateEvent(this.board));
+    }
+
+    doMove(move) {
+        console.log("Performing move: " + JSON.stringify(move));
+        var moved = this.board[move.from[0]][move.from[1]];
+        var target = this.board[move.to[0]][move.to[1]];
+
+        this.board[move.from[0]][move.from[1]] = "empty";
+        this.board[move.to[0]][move.to[1]] = moved;
+
+        if (target != "empty") {
+            alert(getType(target) + " SLAUGHTERED BY " + getType(moved));
+        }
+
+        console.log(JSON.stringify(this.board));
+        this.dispatchEvent(new BoardStateEvent(this.board));
+    }
+}
+
+class BoardStateEvent {
+    constructor(boardData) {
+        this.type = "stateupdate";
+        this.payload = boardData;
+    }
+}
+
+export class Position {
+    constructor(x, y) {
+        this.x = (x + 8) % 8;
+        this.y = (y + 8) % 8;
+    }
 }
 
 function getColor(piece) {
@@ -57,29 +105,6 @@ function getType(piece) {
     return piece.slice(0);
 }
 
-export function doMove(move) {
-    console.log("Should I move: " + JSON.stringify(move));
-    var moved = data[move.from[0]][move.from[1]];
-    var target = data[move.to[0]][move.to[1]];
-
-    data[move.from[0]][move.from[1]] = "empty";
-    data[move.to[0]][move.to[1]] = moved;
-
-    if (target != "empty") {
-        alert(getType(target) + " SLAUGHTERED BY " + getType(moved));
-    }
-
-    boardEvents.dispatchEvent(new CustomEvent("stateupdate"));
-    console.log(JSON.stringify(data));
-}
-
-export class Move {
-    constructor(from, to, promotion) {
-        this.from = from
-        this.to = to
-        this.promotion = promotion
-    }
-}
 
 function _960() {
     const data = Array(ROWS).fill().map(() => Array(COLS).fill("empty"));

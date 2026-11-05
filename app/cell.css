@@ -1,0 +1,33 @@
+/* Base style for every square */
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box; /* Prevents border from altering the 50x50px size */
+}
+
+/* Base colors */
+.cell.white { background-color: #f0d9b5; } /* Standard chess light color */
+.cell.gray  { background-color: #b58863; } /* Standard chess dark color */
+
+/* --- SELECTED STATE --- */
+/* Golden highlight tailored for light vs dark squares */
+.cell.selected { 
+    background-image: linear-gradient(rgba(255, 236, 94, 0.461), rgba(240, 210, 0, 0.4)); 
+}
+
+/* --- LEGAL MOVES STATE --- */
+/* Green dot or overlay tailored for light vs dark squares */
+.cell.white.legal { 
+    background-image: 
+        radial-gradient(circle, #1a1 20%, transparent 20%),
+        linear-gradient(rgba(0, 150, 0, 0.15), rgba(0, 150, 0, 0.15)); 
+}
+
+.cell.gray.legal { 
+    background-image: 
+        radial-gradient(circle, #222 20%, transparent 20%), /* Mörkare prick för kontrast på brunt */
+        linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)); /* Mörk toning istället för grön */
+}

@@ -1,14 +1,26 @@
 <!DOCTYPE html>
 <html>
-  <body>
-     <h1>Hello bun!</h1>
-      <script defer src="src/main.js"></script>
 
-     <div id="board-root"></div>
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
 
-     <input type="text" id="roomInput" placeholder="Enter room name" />
-     <button id="joinBtn">Join</button>
-     <button id="swap">Swap</button>
-     <button id="msg">Msg</button>
-  </body>
+<body>
+  <h1>Hello bun!</h1>
+  <script defer src="src/main.js"></script>
+
+  <div style="display: flex; flex-direction: row;">
+    <button id="copyMyId">Copy ID</button>
+    <p id="peerLbl">[Peer Label]</p>
+  </div>
+
+  <div id="board-root"></div>
+
+  <input type="text" id="roomInput" placeholder="Enter room name" />
+  <button id="joinBtn">Join</button>
+  <button id="swap">Swap</button>
+  <button id="msg">Msg</button>
+
+</body>
+
 </html>

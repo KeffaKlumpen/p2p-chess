@@ -1,9 +1,7 @@
 
 import { Peer } from "peerjs";
-import { randInt } from "./math-helper.js";
-import { getBoardData } from "./engine.js";
 
-var peer = new Peer(randInt(10), {
+var peer = new Peer({
     config: {
         iceServers: [
             {
@@ -22,6 +20,7 @@ var connection;
 
 peer.on("open", function (id) {
     console.log("My peer ID is: " + id);
+    dispatchEvent(new GenericEvent("peerCreated", id));
 });
 
 // Receive connection
@@ -39,7 +38,7 @@ export function joinRoom(roomName) {
     outConn.on("open", () => {
         onConnectionOpened(outConn);
 
-        peerEvents.dispatchEvent(new CustomEvent("connEstablished"));
+        dispatchEvent(new GenericEvent("connEstablished"));
     });
 }
 export function sendData(data) {
@@ -66,36 +65,44 @@ function onConnectionOpened(c) {
 function handleData(data) {
     console.log("Recieved: " + JSON.stringify(data));
 
-    if (data.payload != null && data.payload.detail != null) {
-        peerEvents.dispatchEvent(new CustomEvent(data.type, data.payload));
+    if (data.type != null && data.payload != null) {
+        dispatchEvent(data);
     } else {
         console.log("Invalid payload recieved: " + JSON.stringify(data.payload));
     }
 }
 
+function dispatchEvent(event) {
+    console.log("local dispatch: " + JSON.stringify(event));
+    peerEvents.dispatchEvent(new CustomEvent(event.type, { detail: event.payload }));
+}
+
 export const peerEvents = new EventTarget();
 
-export class P2pEvent {
-    constructor(payload) {
-        this.type = "p2p";
-        this.payload = { detail: payload };
+export class GenericEvent {
+    constructor(type, payload) {
+        console.assert(typeof type === "string")
+        this.type = type;
+        this.payload = payload;
     }
 }
-export class InitEvent {
+export class P2pEvent extends GenericEvent {
     constructor(payload) {
-        this.type = "init";
-        this.payload = { detail: payload };
+        super("p2p", payload);
     }
 }
-export class StateEvent {
+export class InitEvent extends GenericEvent {
     constructor(payload) {
-        this.type = "state";
-        this.payload = { detail: payload };
+        super("init", payload);
     }
 }
-export class GameEvent {
+export class StateEvent extends GenericEvent {
     constructor(payload) {
-        this.type = "game";
-        this.payload = { detail: payload };
+        super("state", payload);
+    }
+}
+export class GameEvent extends GenericEvent {
+    constructor(payload) {
+        super("game", payload);
     }
 }
