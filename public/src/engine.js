@@ -77,8 +77,8 @@ export class Engine {
                 let moveDist = (col == "w" && pos.x == 6) || (col == "b" && pos.x == 1) ? 2 : 1;
                 let xDirection = col == "w" ? -1 : 1;
                 let pawnMoves = [
-                    { type: "glide", attack: false, dir: [xDirection, 0], length: moveDist },
-                    { type: "jump", attack: true, positions: [[xDirection, 1], [xDirection, -1]] },
+                    { type: "glide", walk: true, attack: false, dir: [xDirection, 0], length: moveDist },
+                    { type: "jump", walk: false, attack: true, positions: [[xDirection, 1], [xDirection, -1]] },
                 ];
 
                 pawnMoves.forEach(move => {
@@ -88,11 +88,11 @@ export class Engine {
                             .map(relativePos => [relativePos[0] + pos.x, relativePos[1] + pos.y])
                             .forEach(tarPos => {
                                 var tarPiece = this.getPiece(tarPos[0], [tarPos[1]]);
-                                console.log("jump", tarPos, tarPiece);
+                                console.log("jump", move.attack, tarPos, tarPiece);
                                 if (tarPiece == null) {
                                     return;
                                 }
-                                if (tarPiece == "empty" || (move.attack && getColor(tarPiece) != col)) {
+                                if ((move.walk && tarPiece == "empty") || (move.attack && tarPiece != "empty" && getColor(tarPiece) != col)) {
                                     legalMoves.push(new Position(tarPos[0], tarPos[1]));
                                 }
                             })
@@ -101,7 +101,7 @@ export class Engine {
                         let tarPiece = this.getPiece(tarPos[0], tarPos[1]);
                         let steps = 1;
                         while (tarPiece != null && (move.length == undefined || steps <= move.length)) {
-                            if (tarPiece == "empty" || (move.attack && getColor(tarPiece) != col)) {
+                            if ((!move.attack && tarPiece == "empty") || (move.attack && getColor(tarPiece) != col)) {
                                 legalMoves.push(new Position(tarPos[0], tarPos[1]));
                             }
                             tarPos = [tarPos[0] + move.dir[0], tarPos[1] + move.dir[1]];
@@ -136,11 +136,19 @@ export class Engine {
 
     doMove(move) {
         console.log("Performing move: " + JSON.stringify(move));
-        var moved = this.board[move.from[0]][move.from[1]];
-        var target = this.board[move.to[0]][move.to[1]];
+        const moved = this.board[move.from.x][move.from.y];
+        const target = this.board[move.to.x][move.to.y];
 
-        this.board[move.from[0]][move.from[1]] = "empty";
-        this.board[move.to[0]][move.to[1]] = moved;
+        this.board[move.from.x][move.from.y] = "empty";
+        this.board[move.to.x][move.to.y] = moved;
+
+        if (getType(moved) == "P") {
+            // check promotion...
+            const col = getColor(moved);
+            if (col == "w" && move.to.x == 7 || col == "b" && move.to.x == 0) {
+                // return { need Promotion Choice }
+            }
+        }
 
         if (target != "empty") {
             alert(getType(target) + " SLAUGHTERED BY " + getType(moved));

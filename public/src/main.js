@@ -1,10 +1,10 @@
 import "./chessboard.js";
 import { ChessboardUI } from "./chessboard.js";
-import { Engine, Move } from "./engine.js";
+import { Engine } from "./engine.js";
 // import './hcg-toast/hcg-toast.css';
 import toast from './hcg-toast/hcg-toast.js';
 import "./math-helper.js";
-import { GameEvent, InitEvent, joinRoom, peerEvents, sendData } from "./p2p.js";
+import { InitEvent, joinRoom, peerEvents, sendData } from "./p2p.js";
 
 const engine = new Engine();
 const ui = new ChessboardUI(engine);
@@ -34,15 +34,13 @@ joinInput.onclick = async () => {
 }
 
 joinBtn.onclick = () => joinRoom(joinInput.value);
-document.getElementById("msg").onclick = () => sendData(new GameEvent(new Move([0, 0], [7, 7], undefined)));
 
 const peerLbl = document.getElementById("peerLbl");
 const copyBtn = document.getElementById("copyMyId");
 
 
-peerEvents.addEventListener('game', (e) => {
+peerEvents.addEventListener('movemade', (e) => {
     engine.doMove(e.detail);
-    // doMove(e.detail);
 });
 
 peerEvents.addEventListener('connEstablished', (e) => {
@@ -64,9 +62,3 @@ peerEvents.addEventListener('init', (e) => {
     ui.renderColor = "black";
     engine.initializeGame(e.detail);
 })
-
-ui.boardEvents.addEventListener('move', (e) => {
-    // WHen you try to move, check with engine if OK
-    // If OK, do move and notify peer
-});
-

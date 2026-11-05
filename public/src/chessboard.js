@@ -1,4 +1,5 @@
-import { Position } from "./engine.js";
+import { Move, Position } from "./engine.js";
+import { GenericEvent, sendData } from "./p2p.js";
 
 export class ChessboardUI {
     constructor(engine) {
@@ -21,9 +22,24 @@ export class ChessboardUI {
             this.selectedSquare = null;
             this.legalMoves = [];
         } else {
-            this.selectedSquare = coord;
             const dataPos = coordToDataPos(coord);
-            this.legalMoves = this.engine.legalMoves(dataPos);
+
+            if (this.legalMoves.some(lm => {
+                console.log("check eq", lm, dataPos);
+                return lm.x == dataPos.x && lm.y == dataPos.y;
+            }
+            )) {
+                console.log(dataPos, "is legal move");
+                const move = new Move(coordToDataPos(this.selectedSquare), dataPos)
+                var moveResult = this.engine.doMove(move);
+                sendData(new GenericEvent("movemade", move));
+
+                this.selectedSquare = null;
+                this.legalMoves = [];
+            } else {
+                this.selectedSquare = coord;
+                this.legalMoves = this.engine.legalMoves(dataPos);
+            }
         }
 
         this.rerender();
