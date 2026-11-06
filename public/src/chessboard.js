@@ -9,13 +9,14 @@ export class ChessboardUI {
         this.selectedSquare = null;
         this.legalMoves = [];
         this.boardEl = document.querySelector('#board-root');
+        this.promotionModal = document.querySelector('#promotionModal');
     }
 
     rerender() {
         this.renderChessboard(this.engine.board, this.renderColor);
     }
 
-    squareClicked(coord) {
+    async squareClicked(coord) {
         console.log("ui click on " + JSON.stringify(coord));
 
         if (this.selectedSquare == coord) {
@@ -30,9 +31,19 @@ export class ChessboardUI {
             }
             )) {
                 console.log(dataPos, "is legal move");
-                const move = new Move(coordToDataPos(this.selectedSquare), dataPos)
-                var moveResult = this.engine.doMove(move);
-                sendData(new GenericEvent("movemade", move));
+                let move = new Move(coordToDataPos(this.selectedSquare), dataPos)
+                let moveResult = this.engine.tryMove(move);
+                if (moveResult == "promotion") {
+                    const chosen = await this.getPromotionChoice();
+                    move.promotion = chosen;
+                    moveResult = this.engine.tryMove(move);
+                }
+
+                if (moveResult == "success") {
+                    sendData(new GenericEvent("movemade", move));
+                } else {
+                    console.warn("Failed to make move..");
+                }
 
                 this.selectedSquare = null;
                 this.legalMoves = [];
@@ -97,6 +108,19 @@ export class ChessboardUI {
             table.appendChild(row);
         }
     }
+
+    getPromotionChoice() {
+        return new Promise((resolve) => {
+            // Show the modal
+            this.promotionModal.showModal();
+
+            // Listen for the close event (triggered by form submit or dialog.close())
+            this.promotionModal.addEventListener('close', () => {
+                // modal.returnValue contains the value of the clicked button
+                resolve(this.promotionModal.returnValue);
+            }, { once: true }); // { once: true } auto-removes the listener after firing
+        });
+    }
 }
 
 
@@ -117,12 +141,12 @@ function getCol(coord) {
     return coord.slice(0, 1);
 }
 function coordToDataPos(coord) {
-    var rank = getRank(coord)
-    let col = getCol(coord)
+    const rank = getRank(coord)
+    const col = getCol(coord)
     // rank to X
-    let x = 8 - rank;
+    const x = 8 - rank;
     // col to Y
-    let y = cols.findIndex(c => c == col)
+    const y = cols.findIndex(c => c == col)
     // return new Position(7 - x, 7 - y);
     return new Position(x, y);
 }

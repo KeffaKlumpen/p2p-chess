@@ -1,7 +1,7 @@
 
 import { Peer } from "./peerjs/peerjs.min.js";
 
-var peer = new Peer({
+const peer = new Peer({
     config: {
         iceServers: [
             {
@@ -16,7 +16,7 @@ var peer = new Peer({
         debug: 2
     }
 });
-var connection;
+let connection;
 
 peer.on("open", function (id) {
     console.log("My peer ID is: " + id);

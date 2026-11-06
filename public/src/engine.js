@@ -1,3 +1,4 @@
+import toast from './hcg-toast/hcg-toast.js';
 import { range, randomFromArray } from "./math-helper.js";
 
 const ROWS = 8
@@ -87,7 +88,7 @@ export class Engine {
                         move.positions
                             .map(relativePos => [relativePos[0] + pos.x, relativePos[1] + pos.y])
                             .forEach(tarPos => {
-                                var tarPiece = this.getPiece(tarPos[0], [tarPos[1]]);
+                                const tarPiece = this.getPiece(tarPos[0], [tarPos[1]]);
                                 console.log("jump", move.attack, tarPos, tarPiece);
                                 if (tarPiece == null) {
                                     return;
@@ -134,28 +135,29 @@ export class Engine {
         this.dispatchEvent(new BoardStateEvent(this.board));
     }
 
-    doMove(move) {
+    tryMove(move) {
         console.log("Performing move: " + JSON.stringify(move));
         const moved = this.board[move.from.x][move.from.y];
         const target = this.board[move.to.x][move.to.y];
+        const movedCol = getColor(moved);
 
-        this.board[move.from.x][move.from.y] = "empty";
-        this.board[move.to.x][move.to.y] = moved;
+        console.log(moved, target, movedCol, move.promotion);
 
-        if (getType(moved) == "P") {
-            // check promotion...
-            const col = getColor(moved);
-            if (col == "w" && move.to.x == 7 || col == "b" && move.to.x == 0) {
-                // return { need Promotion Choice }
+        if (move.promotion == null && getType(moved) == "P") {
+            if (movedCol == "w" && move.to.x == 0 || movedCol == "b" && move.to.x == 7) {
+                return "promotion";
             }
         }
 
+        this.board[move.from.x][move.from.y] = "empty";
+        this.board[move.to.x][move.to.y] = move.promotion == undefined ? moved : movedCol + move.promotion;
+
         if (target != "empty") {
-            alert(getType(target) + " SLAUGHTERED BY " + getType(moved));
+            toast.success(target + " SLAUGHTERED BY " + moved);
         }
 
-        console.log(JSON.stringify(this.board));
         this.dispatchEvent(new BoardStateEvent(this.board));
+        return "success";
     }
 
     getPiece(x, y) {

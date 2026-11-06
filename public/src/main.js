@@ -40,7 +40,10 @@ const copyBtn = document.getElementById("copyMyId");
 
 
 peerEvents.addEventListener('movemade', (e) => {
-    engine.doMove(e.detail);
+    const moveResult = engine.tryMove(e.detail);
+    if (moveResult != "success") {
+        toast.error("Failed to perform move from peer!");
+    }
 });
 
 peerEvents.addEventListener('connEstablished', (e) => {
