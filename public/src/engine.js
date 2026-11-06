@@ -32,7 +32,7 @@ export class Engine {
         if (this.currentPlayer != this.myColor) {
             return { success: false, reason: "Not your turn" };
         }
-        let piece = this.board[pos.x][pos.y];
+        const piece = this.board[pos.x][pos.y];
         if (piece == "empty") {
             return { success: false, reason: "No piece on square" }
         } else if (getColor(piece) != this.myColor) {
@@ -46,71 +46,49 @@ export class Engine {
     legalMoves(pos) {
         console.log("Checking legal moves", pos);
         const piece = this.board[pos.x][pos.y];
-        let legalMoves = [];
+        const legalMoves = [];
 
         if (piece == "empty") {
             return legalMoves;
         }
 
-        let col = getColor(piece)
-        let type = getType(piece)
-        console.log(col, type);
+        const type = getType(piece)
         switch (type) {
             case "K": {
-                for (let i = -1; i < 2; i++) {
-                    for (let j = -1; j < 2; j++) {
-                        if (i == 0 && j == 0) { continue; }
-                        let x = pos.x + i;
-                        let y = pos.y + j;
-                        let other = this.getPiece(x, y);
-                        if (other == null) {
-                            continue;
-                        }
-                        if (other == "empty" || col != getColor(other)) {
-                            legalMoves.push(new Position(x, y));
-                        }
-                    }
-                }
+                const moves = [...allDiagonals, ...allStraights]
+                    .map(m => ({ ...m, length: 1 }));
+                legalMoves.push(...this.calcLegalMoves(pos, moves));
                 break;
             }
             case "P": {
                 console.log("checking pawn moves")
-                let moveDist = (col == "w" && pos.x == 6) || (col == "b" && pos.x == 1) ? 2 : 1;
-                let xDirection = col == "w" ? -1 : 1;
-                let pawnMoves = [
+                const col = getColor(piece)
+                const moveDist = (col == "w" && pos.x == 6) || (col == "b" && pos.x == 1) ? 2 : 1;
+                const xDirection = col == "w" ? -1 : 1;
+                const moves = [
                     { type: "glide", walk: true, attack: false, dir: [xDirection, 0], length: moveDist },
                     { type: "jump", walk: false, attack: true, positions: [[xDirection, 1], [xDirection, -1]] },
                 ];
-
-                pawnMoves.forEach(move => {
-                    console.log("pawnmove", move);
-                    if (move.type == "jump") {
-                        move.positions
-                            .map(relativePos => [relativePos[0] + pos.x, relativePos[1] + pos.y])
-                            .forEach(tarPos => {
-                                const tarPiece = this.getPiece(tarPos[0], [tarPos[1]]);
-                                console.log("jump", move.attack, tarPos, tarPiece);
-                                if (tarPiece == null) {
-                                    return;
-                                }
-                                if ((move.walk && tarPiece == "empty") || (move.attack && tarPiece != "empty" && getColor(tarPiece) != col)) {
-                                    legalMoves.push(new Position(tarPos[0], tarPos[1]));
-                                }
-                            })
-                    } else if (move.type == "glide") {
-                        let tarPos = [pos.x + move.dir[0], pos.y + move.dir[1]];
-                        let tarPiece = this.getPiece(tarPos[0], tarPos[1]);
-                        let steps = 1;
-                        while (tarPiece != null && (move.length == undefined || steps <= move.length)) {
-                            if ((!move.attack && tarPiece == "empty") || (move.attack && getColor(tarPiece) != col)) {
-                                legalMoves.push(new Position(tarPos[0], tarPos[1]));
-                            }
-                            tarPos = [tarPos[0] + move.dir[0], tarPos[1] + move.dir[1]];
-                            tarPiece = this.getPiece(tarPos[0], tarPos[1]);
-                            steps++;
-                        }
-                    }
-                });
+                legalMoves.push(...this.calcLegalMoves(pos, moves));
+                break;
+            }
+            case "B": {
+                legalMoves.push(...this.calcLegalMoves(pos, allDiagonals));
+                break;
+            }
+            case "R": {
+                legalMoves.push(...this.calcLegalMoves(pos, allStraights));
+                break;
+            }
+            case "Q": {
+                legalMoves.push(...this.calcLegalMoves(pos, allDiagonals.concat(allStraights)));
+                break;
+            }
+            case "N": {
+                const moves = [
+                    { type: "jump", walk: true, attack: true, positions: [[2, 1], [-2, 1]] }
+                ]
+                legalMoves.push(...this.calcLegalMoves(pos, moves));
                 break;
             }
             default: {
@@ -160,6 +138,47 @@ export class Engine {
         return "success";
     }
 
+    calcLegalMoves(pos, moveList) {
+        const col = getColor(this.getPiece(pos.x, pos.y));
+        const moves = []
+        moveList.forEach(move => {
+            if (move.type == "jump") {
+                move.positions
+                    .map(relativePos => [relativePos[0] + pos.x, relativePos[1] + pos.y])
+                    .forEach(tarPos => {
+                        const tarPiece = this.getPiece(tarPos[0], [tarPos[1]]);
+                        console.log("jump", move.attack, tarPos, tarPiece);
+                        if (tarPiece == null) {
+                            return;
+                        }
+                        if ((move.walk && tarPiece == "empty") || (move.attack && tarPiece != "empty" && getColor(tarPiece) != col)) {
+                            moves.push(new Position(tarPos[0], tarPos[1]));
+                        }
+                    })
+            } else if (move.type == "glide") {
+                let tarPos = [pos.x + move.dir[0], pos.y + move.dir[1]];
+                let tarPiece = this.getPiece(tarPos[0], tarPos[1]);
+                let steps = 1;
+                while (tarPiece != null && (move.length == null || steps <= move.length)) {
+                    const tarCol = getColor(tarPiece);
+                    if (tarCol == col) {
+                        break;
+                    }
+                    if ((move.walk && tarPiece == "empty")) {
+                        moves.push(new Position(tarPos[0], tarPos[1]));
+                    } else if (move.attack && getColor(tarPiece) != col) {
+                        moves.push(new Position(tarPos[0], tarPos[1]));
+                        break;
+                    }
+                    tarPos = [tarPos[0] + move.dir[0], tarPos[1] + move.dir[1]];
+                    tarPiece = this.getPiece(tarPos[0], tarPos[1]);
+                    steps++;
+                }
+            }
+        });
+        return moves;
+    }
+
     getPiece(x, y) {
         if (x < 0 || x >= ROWS || y < 0 || y >= COLS)
             return null;
@@ -167,6 +186,19 @@ export class Engine {
         return this.board[x][y];
     }
 }
+
+const allDiagonals = [
+    { type: "glide", walk: true, attack: true, dir: [1, 1] },
+    { type: "glide", walk: true, attack: true, dir: [1, -1] },
+    { type: "glide", walk: true, attack: true, dir: [-1, -1] },
+    { type: "glide", walk: true, attack: true, dir: [-1, 1] },
+];
+const allStraights = [
+    { type: "glide", walk: true, attack: true, dir: [1, 0] },
+    { type: "glide", walk: true, attack: true, dir: [-1, 0] },
+    { type: "glide", walk: true, attack: true, dir: [0, 1] },
+    { type: "glide", walk: true, attack: true, dir: [0, -1] },
+]
 
 class BoardStateEvent {
     constructor(boardData) {
