@@ -1,10 +1,10 @@
-import { Move, Position } from "./engine.js";
+import { getColor, Move, Position } from "./engine.js";
 import { GenericEvent, sendData } from "./p2p.js";
 
 export class ChessboardUI {
     constructor(engine) {
         this.engine = engine;
-        this.renderColor = "white";
+        this.renderColor = "w";
         this.boardEvents = new EventTarget();
         this.selectedSquare = null;
         this.legalMoves = [];
@@ -25,11 +25,7 @@ export class ChessboardUI {
         } else {
             const dataPos = coordToDataPos(coord);
 
-            if (this.legalMoves.some(lm => {
-                console.log("check eq", lm, dataPos);
-                return lm.x == dataPos.x && lm.y == dataPos.y;
-            }
-            )) {
+            if (this.legalMoves.some(lm => { return lm.x == dataPos.x && lm.y == dataPos.y; })) {
                 console.log(dataPos, "is legal move");
                 let move = new Move(coordToDataPos(this.selectedSquare), dataPos)
                 let moveResult = this.engine.tryMove(move);
@@ -47,9 +43,12 @@ export class ChessboardUI {
 
                 this.selectedSquare = null;
                 this.legalMoves = [];
-            } else {
+            } else if (getColor(this.engine.getPiece(dataPos.x, dataPos.y)) == this.engine.myColor) {
                 this.selectedSquare = coord;
                 this.legalMoves = this.engine.legalMoves(dataPos);
+            } else {
+                this.selectedSquare = null;
+                this.legalMoves = [];
             }
         }
 
@@ -58,7 +57,7 @@ export class ChessboardUI {
 
     renderChessboard(chessData, orientation) {
         const orientedData = structuredClone(chessData);
-        if (orientation == "black") {
+        if (orientation == "b") {
             orientedData.reverse();
             orientedData.map(col => col.reverse())
         }
@@ -151,7 +150,7 @@ function coordToDataPos(coord) {
     return new Position(x, y);
 }
 function uiposToCoord(x, y, renderColor) {
-    if (renderColor == "white") {
+    if (renderColor == "w") {
         return `${col(y)}${rank(x)}`;
     } else {
         return `${col(7 - y)}${rank(7 - x)}`;
@@ -163,9 +162,3 @@ function col(y) {
 function rank(x) {
     return 8 - x;
 }
-
-// document.getElementById("swap").onclick = () => {
-//     renderColor = renderColor == "white" ? "black" : "white"
-//     console.log("render with: " + renderColor);
-//     rerender();
-// };

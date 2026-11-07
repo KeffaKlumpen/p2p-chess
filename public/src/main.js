@@ -62,6 +62,6 @@ peerEvents.addEventListener('peerCreated', (e) => {
     copyBtn.onclick = copyFn;
 });
 peerEvents.addEventListener('init', (e) => {
-    ui.renderColor = "black";
+    ui.renderColor = "b";
     engine.initializeGame(e.detail);
 })

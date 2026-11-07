@@ -19,8 +19,8 @@ export class Engine {
         this.board = _960();
         this.selected = null;
         this.chessEvents = new EventTarget();
-        this.currentPlayer = "white";
-        this.myColor = "white";
+        this.currentPlayer = "w";
+        this.myColor = "w";
     }
 
     dispatchEvent(event) {
@@ -102,12 +102,12 @@ export class Engine {
     initializeGame(otherBoard) {
         if (otherBoard) {
             this.board = otherBoard;
-            this.currentPlayer = "white";
-            this.myColor = "black";
+            this.currentPlayer = "w";
+            this.myColor = "b";
         } else {
             this.board = _960();
-            this.currentPlayer = "white";
-            this.myColor = "white";
+            this.currentPlayer = "w";
+            this.myColor = "w";
         }
 
         this.dispatchEvent(new BoardStateEvent(this.board));
@@ -120,6 +120,10 @@ export class Engine {
         const movedCol = getColor(moved);
 
         console.log(moved, target, movedCol, move.promotion);
+
+        if (movedCol != this.currentPlayer) {
+            return "turnOrder";
+        }
 
         if (move.promotion == null && getType(moved) == "P") {
             if (movedCol == "w" && move.to.x == 0 || movedCol == "b" && move.to.x == 7) {
@@ -134,6 +138,7 @@ export class Engine {
             toast.success(target + " SLAUGHTERED BY " + moved);
         }
 
+        this.currentPlayer = this.currentPlayer == "w" ? "b" : "w";
         this.dispatchEvent(new BoardStateEvent(this.board));
         return "success";
     }
@@ -214,10 +219,10 @@ export class Position {
     }
 }
 
-function getColor(piece) {
+export function getColor(piece) {
     return piece.slice(0, 1);
 }
-function getType(piece) {
+export function getType(piece) {
     return piece.slice(1);
 }
 
