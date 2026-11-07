@@ -17,15 +17,20 @@ const peer = new Peer({
     }
 });
 let connection;
+const joinInput = document.getElementById("roomInput");
+const targetRoomId = getRoomIdFromURL();
+if (targetRoomId) {
+    // set "joinInput" = targetRoomId
+    joinInput.value = targetRoomId;
+}
 
 peer.on("open", function (id) {
     console.log("My peer ID is: " + id);
     dispatchEvent(new GenericEvent("peerCreated", id));
-    const targetRoomId = getRoomIdFromURL();
+    const targetRoomId = joinInput.value;
     if (targetRoomId) {
+        // set "joinInput" = targetRoomId
         joinRoom(targetRoomId);
-    } else {
-
     }
 });
 
