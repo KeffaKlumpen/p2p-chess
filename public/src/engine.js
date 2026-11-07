@@ -85,14 +85,10 @@ export class Engine {
                 break;
             }
             case "N": {
-                const moves = [
-                    { type: "jump", walk: true, attack: true, positions: [[2, 1], [-2, 1]] }
-                ]
-                legalMoves.push(...this.calcLegalMoves(pos, moves));
+                legalMoves.push(...this.calcLegalMoves(pos, allKnight));
                 break;
             }
             default: {
-                legalMoves.push(new Position(3, 3));
             }
         }
 
@@ -206,6 +202,9 @@ const allStraights = [
     { type: "glide", walk: true, attack: true, dir: [-1, 0] },
     { type: "glide", walk: true, attack: true, dir: [0, 1] },
     { type: "glide", walk: true, attack: true, dir: [0, -1] },
+]
+const allKnight = [
+    { type: "jump", walk: true, attack: true, positions: [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [-1, 2], [1, -2], [-1, -2]] }
 ]
 
 class BoardStateEvent {
