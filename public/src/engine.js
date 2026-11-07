@@ -135,6 +135,9 @@ export class Engine {
         this.board[move.to.x][move.to.y] = move.promotion == undefined ? moved : movedCol + move.promotion;
 
         if (target != "empty") {
+            if (getType(target) == "K") {
+                alert(movedCol == "w" ? "WHITE" : "BLACK" + " WINS!")
+            }
             toast.success(target + " SLAUGHTERED BY " + moved);
         }
 
