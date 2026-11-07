@@ -37,7 +37,7 @@ joinBtn.onclick = () => joinRoom(joinInput.value);
 
 const peerLbl = document.getElementById("peerLbl");
 const copyBtn = document.getElementById("copyMyId");
-
+const lobbyEl = document.getElementById("lobbyControls");
 
 peerEvents.addEventListener('movemade', (e) => {
     const moveResult = engine.tryMove(e.detail);
@@ -50,14 +50,18 @@ peerEvents.addEventListener('connEstablished', (e) => {
     console.log("connestablished: " + JSON.stringify(e.detail));
     engine.initializeGame();
     sendData(new InitEvent(engine.board));
+
+    lobbyEl.style.display = "none"; // TODO: connLost => { lobbyEl.style.display = ""; }
 });
 peerEvents.addEventListener('peerCreated', (e) => {
     console.log("peerCreated: " + JSON.stringify(e.detail));
     peerLbl.innerHTML = `My PeerID: [${e.detail}]`;
+    const inviteLink = `${window.location.origin}${window.location.pathname}?room=${e.detail}`;
     let copyFn = () => {
-        navigator.clipboard.writeText(e.detail);
+        navigator.clipboard.writeText(inviteLink);
         toast.success("Copied to clipboard!")
     }
+    
     peerLbl.onclick = copyFn;
     copyBtn.onclick = copyFn;
 });

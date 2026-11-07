@@ -21,6 +21,12 @@ let connection;
 peer.on("open", function (id) {
     console.log("My peer ID is: " + id);
     dispatchEvent(new GenericEvent("peerCreated", id));
+    const targetRoomId = getRoomIdFromURL();
+    if (targetRoomId) {
+        joinRoom(targetRoomId);
+    } else {
+
+    }
 });
 
 // Receive connection
@@ -29,6 +35,11 @@ peer.on("connection", (inConn) => {
         onConnectionOpened(inConn)
     });
 });
+
+function getRoomIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('room');
+}
 
 export function joinRoom(roomName) {
     console.log("Joining room: " + roomName);

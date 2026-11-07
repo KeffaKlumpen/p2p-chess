@@ -9,28 +9,30 @@
   <h1>Welcome to P2P-Chess!</h1>
   <script type="module" src="src/main.js"></script>
 
-  <div style="display: flex; flex-direction: row;">
-    <button id="copyMyId">Copy ID</button>
-    <p id="peerLbl">[Peer Label]</p>
+  <div id="lobbyControls">
+    <div style="display: flex; flex-direction: row;">
+      <button id="copyMyId">Copy Room Link</button>
+      <p id="peerLbl">[Peer Label]</p>
+    </div>
+  
+    <input type="text" id="roomInput" placeholder="Enter room name" />
+    <button id="joinBtn">Join</button>
   </div>
 
   <div id="board-root"></div>
 
-  <input type="text" id="roomInput" placeholder="Enter room name" />
-  <button id="joinBtn">Join</button>
-  <button id="swap">Swap</button>
-  <button id="msg">Msg</button>
+  <button id="swap">Rotate view</button>
 
   <dialog id="promotionModal">
-  <h3>Välj bondeförvandling:</h3>
-  <!-- method="dialog" automatically closes the modal on submit -->
-  <form method="dialog">
-    <button value="Q"><img src="static/chesspieces/cburnett/wQ.svg" alt="Queen"></button>
-    <button value="R"><img src="static/chesspieces/cburnett/wR.svg" alt="Rook"></button>
-    <button value="B"><img src="static/chesspieces/cburnett/wB.svg" alt="Bishop"></button>
-    <button value="N"><img src="static/chesspieces/cburnett/wN.svg" alt="Knight"></button>
-  </form>
-</dialog>
+    <h3>Välj bondeförvandling:</h3>
+    <!-- method="dialog" automatically closes the modal on submit -->
+    <form method="dialog">
+      <button value="Q"><img src="static/chesspieces/cburnett/wQ.svg" alt="Queen"></button>
+      <button value="R"><img src="static/chesspieces/cburnett/wR.svg" alt="Rook"></button>
+      <button value="B"><img src="static/chesspieces/cburnett/wB.svg" alt="Bishop"></button>
+      <button value="N"><img src="static/chesspieces/cburnett/wN.svg" alt="Knight"></button>
+    </form>
+  </dialog>
 </body>
 
 </html>
