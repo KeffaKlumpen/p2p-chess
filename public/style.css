@@ -1,2 +1,11 @@
 @import "./cell.css";
 @import "./src/hcg-toast/hcg-toast.css";
+
+#chessboard {
+    width: 95vmin;
+    height: 95vmin;
+    max-width: 500px;
+    max-height: 500px;
+    margin: 0 auto;
+    table-layout: fixed;
+}

@@ -65,7 +65,10 @@ export class ChessboardUI {
         const table = document.createElement('table');
         table.setAttribute('id', 'chessboard');
         table.setAttribute('style', 'border-collapse: collapse; border: 1px solid black;');
-        this.boardEl.replaceChildren(table);
+        const infoLbl = document.createElement('h3');
+        infoLbl.append(this.engine.currentPlayer == "w" ? "White to move" : "Black to move");
+        infoLbl.setAttribute('style', "text-align: center;");
+        this.boardEl.replaceChildren(infoLbl, table);
 
         for (let i = 0; i < 8; i++) {
             const row = document.createElement('tr');
@@ -86,7 +89,6 @@ export class ChessboardUI {
                     const imgEl = document.createElement('img');
                     imgEl.setAttribute('src', `static/chesspieces/cburnett/${piece}.svg`);
                     imgEl.setAttribute('alt', piece);
-                    imgEl.setAttribute('style', 'width: 40px; height: 40px;');
                     cell.appendChild(imgEl);
                 }
 
