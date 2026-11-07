@@ -76,6 +76,7 @@ function onConnectionOpened(c) {
     });
 
     sendData(new P2pEvent(peer.id))
+    dispatchEvent(new GenericEvent("connOpened"));
 }
 
 function handleData(data) {

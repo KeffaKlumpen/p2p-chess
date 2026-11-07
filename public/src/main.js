@@ -11,9 +11,13 @@ const ui = new ChessboardUI(engine);
 engine.chessEvents.addEventListener('stateupdate', (e) => {
     ui.rerender();
 });
+document.getElementById("swap").onclick = () => {
+    ui.renderColor = ui.renderColor == "w" ? "b" : "w";
+    ui.rerender();
+}
 
-let joinBtn = document.getElementById("joinBtn");
-let joinInput = document.getElementById("roomInput");
+const joinBtn = document.getElementById("joinBtn");
+const joinInput = document.getElementById("roomInput");
 joinInput.onclick = async () => {
     if (joinInput.value == "") {
         joinInput.value = await navigator.clipboard.readText()
@@ -50,7 +54,8 @@ peerEvents.addEventListener('connEstablished', (e) => {
     console.log("connestablished: " + JSON.stringify(e.detail));
     engine.initializeGame();
     sendData(new InitEvent(engine.board));
-
+});
+peerEvents.addEventListener('connOpened', (e) => {
     lobbyEl.style.display = "none"; // TODO: connLost => { lobbyEl.style.display = ""; }
 });
 peerEvents.addEventListener('peerCreated', (e) => {
