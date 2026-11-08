@@ -173,6 +173,8 @@ export class Engine {
                     } else if (move.attack && getColor(tarPiece) != col) {
                         moves.push(new Position(tarPos[0], tarPos[1]));
                         break;
+                    } else if (tarPiece != "empty") {
+                        break;
                     }
                     tarPos = [tarPos[0] + move.dir[0], tarPos[1] + move.dir[1]];
                     tarPiece = this.getPiece(tarPos[0], tarPos[1]);
